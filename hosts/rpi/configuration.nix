@@ -32,6 +32,8 @@
     enableZshIntegration = true;
   };
 
+  security.sudo.wheelNeedsPassword = false;
+
   systemd.tmpfiles.rules = [
     "d /home/${username}/.config 0755 ${username} users -"
     "L+ /home/${username}/.zshrc - - - - ${dotfiles}/.zshrc"
