@@ -27,10 +27,7 @@
   };
 
   programs.zsh.enable = true;
-  programs.starship = {
-    enable = true;
-    enableZshIntegration = true;
-  };
+  programs.starship.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
 
