@@ -1,0 +1,78 @@
+name: Build ML NixOS installer ISO
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/ml/**"
+      - ".github/workflows/build-ml-iso.yml"
+
+concurrency:
+  group: build-ml-iso-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  build-ml-iso:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-25.11
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build ML installer ISO
+        run: nix build .#packages.x86_64-linux.mlInstallerIso --print-build-logs
+
+      - name: Prepare single artifact file
+        id: meta
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          ISO=$(ls -1t result/iso/*.iso | head -n1)
+          cp "$ISO" dist/ml-installer.iso
+          echo "iso_path=dist/ml-installer.iso" >> "$GITHUB_OUTPUT"
+
+      - name: Delete previous artifact versions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactName = 'ml-installer-iso';
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+
+            for (const artifact of artifacts) {
+              if (artifact.name === artifactName) {
+                core.info(`Deleting old artifact: ${artifact.name} (id=${artifact.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
+
+      - name: Upload installer ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-installer-iso
+          path: ${{ steps.meta.outputs.iso_path }}
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 7

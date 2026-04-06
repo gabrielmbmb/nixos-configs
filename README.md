@@ -72,6 +72,14 @@ Result:
 
 - `./result/iso/*.iso`
 
+### Or download + write latest CI ISO automatically
+
+```bash
+./scripts/flash-latest-ml-iso.sh /dev/rdisk4
+```
+
+The script downloads the latest successful GitHub Actions artifact (`ml-installer-iso`) and writes it to your USB drive.
+
 ## 4) ML post-install checks
 
 On the installed ML machine, run:
@@ -88,10 +96,11 @@ This validates:
 - Docker daemon access
 - GPU access from Docker (`docker run --gpus all ... nvidia-smi`)
 
-## 5) GitHub Actions build artifact (Raspberry Pi)
+## 5) GitHub Actions build artifacts
 
-Workflow:
+Workflows:
 
 - `.github/workflows/build-rpi-image.yml`
+- `.github/workflows/build-ml-iso.yml`
 
-Run manually via **Actions → Build Raspberry Pi NixOS image → Run workflow**.
+Run manually via **Actions** tab.
