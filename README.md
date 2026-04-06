@@ -52,6 +52,14 @@ Result:
 
 - `./result/sd-image/*.img`
 
+### Or download + flash latest CI image automatically
+
+```bash
+./scripts/flash-latest-rpi-image.sh /dev/rdisk4
+```
+
+The script downloads the latest successful GitHub Actions artifact (`rpi-sd-image`) and writes it to the SD card.
+
 ## 3) Build ML workstation installer ISO (x86_64)
 
 On an `x86_64-linux` builder:

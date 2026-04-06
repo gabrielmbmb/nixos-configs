@@ -33,7 +33,7 @@
         hostname = "rpi";
         modules = [
           ./hosts/rpi/configuration.nix
-          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64-new-kernel.nix"
         ];
       };
 
