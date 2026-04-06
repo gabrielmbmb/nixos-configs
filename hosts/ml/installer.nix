@@ -63,6 +63,7 @@ in
     fzf
     starship
     pnpm
+    nodejs
     rustc
     cargo
     zig

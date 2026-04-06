@@ -56,6 +56,7 @@
     starship
     uv
     pnpm
+    nodejs
     rustc
     cargo
     zig
