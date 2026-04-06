@@ -27,6 +27,10 @@
   };
 
   programs.zsh.enable = true;
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 
   systemd.tmpfiles.rules = [
     "d /home/${username}/.config 0755 ${username} users -"
@@ -43,6 +47,18 @@
     tmux
     neovim
     zsh
+    ghostty.terminfo
+    ripgrep
+    fd
+    fzf
+    starship
+    uv
+    pnpm
+    rustc
+    cargo
+    zig
+    go
+    bun
     docker-compose
     git
     curl

@@ -58,6 +58,16 @@ in
     tmux
     neovim
     uv
+    ripgrep
+    fd
+    fzf
+    starship
+    pnpm
+    rustc
+    cargo
+    zig
+    go
+    bun
     docker-compose
     git
     curl
