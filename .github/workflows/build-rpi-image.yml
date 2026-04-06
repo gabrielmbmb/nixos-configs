@@ -1,0 +1,46 @@
+name: Build Raspberry Pi NixOS image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "flake.nix"
+      - "flake.lock"
+      - "hosts/**"
+      - ".github/workflows/build-rpi-image.yml"
+
+jobs:
+  build-sd-image:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-25.11
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build Raspberry Pi SD image
+        run: nix build .#packages.aarch64-linux.sdImage --print-build-logs
+
+      - name: Prepare artifact metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          IMG=$(ls -1 result/sd-image/*.img* | head -n1)
+          echo "img_path=$IMG" >> "$GITHUB_OUTPUT"
+          echo "artifact_name=rpi-sd-image-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload SD image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.artifact_name }}
+          path: ${{ steps.meta.outputs.img_path }}
+          if-no-files-found: error
+          retention-days: 7
