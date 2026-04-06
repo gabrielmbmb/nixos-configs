@@ -10,6 +10,14 @@ on:
       - "hosts/**"
       - ".github/workflows/build-rpi-image.yml"
 
+concurrency:
+  group: build-rpi-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build-sd-image:
     runs-on: ubuntu-24.04-arm
@@ -29,18 +37,42 @@ jobs:
       - name: Build Raspberry Pi SD image
         run: nix build .#packages.aarch64-linux.sdImage --print-build-logs
 
-      - name: Prepare artifact metadata
+      - name: Prepare single artifact file
         id: meta
         run: |
           set -euo pipefail
-          IMG=$(ls -1 result/sd-image/*.img* | head -n1)
-          echo "img_path=$IMG" >> "$GITHUB_OUTPUT"
-          echo "artifact_name=rpi-sd-image-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          IMG=$(ls -1t result/sd-image/*.img* | head -n1)
+          cp "$IMG" dist/rpi-sd-image.img
+          echo "img_path=dist/rpi-sd-image.img" >> "$GITHUB_OUTPUT"
+
+      - name: Delete previous artifact versions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactName = 'rpi-sd-image';
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+
+            for (const artifact of artifacts) {
+              if (artifact.name === artifactName) {
+                core.info(`Deleting old artifact: ${artifact.name} (id=${artifact.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
 
       - name: Upload SD image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.meta.outputs.artifact_name }}
+          name: rpi-sd-image
           path: ${{ steps.meta.outputs.img_path }}
           if-no-files-found: error
+          overwrite: true
           retention-days: 7
