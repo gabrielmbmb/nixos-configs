@@ -13,7 +13,7 @@
     let
       # Shared defaults (edit to match your setup)
       username = "gabriel";
-      sshPublicKey = "ssh-ed25519 AAAA_REPLACE_WITH_YOUR_PUBLIC_KEY";
+      sshPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINjwlAP3H2QIyCtXySAUalJ8y5QwyQauE3s09XlVRwKm gabrielmbmb@Gabriels-MacBook-Pro-2.local-20260406";
 
       mkHost =
         {
