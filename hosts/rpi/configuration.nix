@@ -1,4 +1,4 @@
-{ lib, pkgs, hostname, username, sshPublicKey, ... }:
+{ lib, pkgs, hostname, username, sshPublicKey, dotfiles, ... }:
 {
   networking.hostName = hostname;
   networking.useDHCP = lib.mkDefault true;
@@ -22,8 +22,17 @@
     isNormalUser = true;
     description = username;
     extraGroups = [ "wheel" "docker" ];
+    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [ sshPublicKey ];
   };
+
+  programs.zsh.enable = true;
+
+  systemd.tmpfiles.rules = [
+    "d /home/${username}/.config 0755 ${username} users -"
+    "L+ /home/${username}/.zshrc - - - - ${dotfiles}/.zshrc"
+    "L+ /home/${username}/.config/nvim - - - - ${dotfiles}/.config/nvim"
+  ];
 
   virtualisation.docker = {
     enable = true;
@@ -33,6 +42,7 @@
   environment.systemPackages = with pkgs; [
     tmux
     neovim
+    zsh
     docker-compose
     git
     curl

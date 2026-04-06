@@ -1,22 +1,25 @@
-# Raspberry Pi NixOS flake
+# NixOS images (Raspberry Pi + ML workstation)
 
-This flake builds an `aarch64` NixOS SD image with:
+This flake builds:
 
-- Hostname
-- Your SSH public key
-- `tmux`, `neovim`
+1. **Raspberry Pi SD image** (`aarch64`)
+2. **x86_64 installer ISO** for an ML workstation with NVIDIA + CUDA 13.0
+
+## Included setup
+
+- SSH server + your authorized public key
+- `tmux`, `neovim`, `uv`, `llama-cpp`
 - Docker + docker compose
+- For ML ISO: headless NVIDIA driver + CUDA **13.0** + NVIDIA container toolkit (no UI)
 
 ## 1) Set your values
 
 Edit `flake.nix`:
 
-- `hostname`
 - `username`
+- hostnames (`rpi`, `ml3090`) if you want
 
 ### Auto-fill `sshPublicKey` from your local key
-
-Use the helper script:
 
 ```bash
 ./scripts/update-ssh-key.sh
@@ -28,7 +31,16 @@ Optional args:
 ./scripts/update-ssh-key.sh <path-to-public-key> <path-to-flake.nix>
 ```
 
-## 2) Build the image
+### Raspberry Pi dotfiles sync
+
+The RPi host is configured to pull from `github:gabrielmbmb/dotfiles` and link:
+
+- `~/.zshrc` → `.zshrc`
+- `~/.config/nvim` → `.config/nvim`
+
+(These are pinned via `flake.lock`.)
+
+## 2) Build Raspberry Pi image
 
 On an `aarch64-linux` builder:
 
@@ -40,30 +52,38 @@ Result:
 
 - `./result/sd-image/*.img`
 
-## 3) Flash to SD card
+## 3) Build ML workstation installer ISO (x86_64)
 
-Example (Linux):
-
-```bash
-sudo dd if=./result/sd-image/*.img of=/dev/sdX bs=4M status=progress conv=fsync
-```
-
-Replace `/dev/sdX` with your SD card device.
-
-## 4) Boot and connect
-
-After boot, SSH with your configured user:
+On an `x86_64-linux` builder:
 
 ```bash
-ssh <username>@<hostname>.local
+nix build .#packages.x86_64-linux.mlInstallerIso
 ```
 
-(Or use the device IP from your router.)
+Result:
 
-## GitHub Actions build artifact
+- `./result/iso/*.iso`
 
-A workflow is included at:
+## 4) ML post-install checks
+
+On the installed ML machine, run:
+
+```bash
+./scripts/ml-post-install-check.sh
+```
+
+This validates:
+
+- `nvidia-smi` and GPU visibility
+- CUDA toolkit version (`nvcc`, expects 13.0)
+- `llama-cpp` CLI availability (`llama`)
+- Docker daemon access
+- GPU access from Docker (`docker run --gpus all ... nvidia-smi`)
+
+## 5) GitHub Actions build artifact (Raspberry Pi)
+
+Workflow:
 
 - `.github/workflows/build-rpi-image.yml`
 
-It can be run manually (**Actions → Build Raspberry Pi NixOS image → Run workflow**) and will upload the SD image as a downloadable artifact.
+Run manually via **Actions → Build Raspberry Pi NixOS image → Run workflow**.
