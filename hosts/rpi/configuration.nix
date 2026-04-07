@@ -61,8 +61,10 @@
     bun
     docker-compose
     git
+    gh
     curl
     htop
+    wakeonlan
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

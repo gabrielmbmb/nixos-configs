@@ -118,6 +118,7 @@ in
     bun
     docker-compose
     git
+    gh
     curl
     htop
     pciutils
