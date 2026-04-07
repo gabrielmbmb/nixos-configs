@@ -1,4 +1,4 @@
-{ config, lib, pkgs, hostname, username, sshPublicKey, ... }:
+{ config, lib, pkgs, hostname, username, sshPublicKey, dotfiles, ... }:
 let
   cudaPkgs = pkgs.cudaPackages_13_0;
   gpuPowerLimitWatts = 300;
@@ -30,8 +30,20 @@ in
     isNormalUser = true;
     description = username;
     extraGroups = [ "wheel" "networkmanager" "docker" ];
+    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [ sshPublicKey ];
   };
+
+  programs.zsh.enable = true;
+  programs.starship.enable = true;
+
+  security.sudo.wheelNeedsPassword = false;
+
+  systemd.tmpfiles.rules = [
+    "d /home/${username}/.config 0755 ${username} users -"
+    "L+ /home/${username}/.zshrc - - - - ${dotfiles}/.zshrc"
+    "L+ /home/${username}/.config/nvim - - - - ${dotfiles}/.config/nvim"
+  ];
 
   # Docker + Compose
   virtualisation.docker = {
@@ -90,6 +102,8 @@ in
   environment.systemPackages = with pkgs; [
     tmux
     neovim
+    zsh
+    ghostty.terminfo
     uv
     ripgrep
     fd
