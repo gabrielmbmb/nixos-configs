@@ -7,16 +7,20 @@ in
     [ ./common.nix ]
     ++ lib.optional hasHardwareConfig ./hardware-configuration.nix;
 
+  boot.loader = if hasHardwareConfig then {
+    # Bootloader for the installed ML machine (UEFI).
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  } else {
+    grub.enable = false;
+  };
+
   # Keep evaluation readable when hardware config is missing.
   fileSystems = lib.mkIf (!hasHardwareConfig) {
     "/" = {
       device = "none";
       fsType = "tmpfs";
     };
-  };
-
-  boot.loader = lib.mkIf (!hasHardwareConfig) {
-    grub.enable = false;
   };
 
   assertions = [
