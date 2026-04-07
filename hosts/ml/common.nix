@@ -71,6 +71,32 @@ in
   # Enables NVIDIA runtime/CDI support for containers.
   hardware.nvidia-container-toolkit.enable = true;
 
+  systemd.services.pi-coding-agent-install = {
+    description = "Install pi-coding-agent globally for ${username}";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = username;
+    };
+
+    script = ''
+      set -eu
+      export HOME="/home/${username}"
+      export PNPM_HOME="$HOME/.local/share/pnpm"
+      export PATH="$PNPM_HOME:${pkgs.pnpm}/bin:${pkgs.nodejs}/bin:/run/current-system/sw/bin"
+
+      mkdir -p "$PNPM_HOME"
+      if [ -x "$PNPM_HOME/pi" ]; then
+        exit 0
+      fi
+
+      ${pkgs.pnpm}/bin/pnpm install -g @mariozechner/pi-coding-agent
+    '';
+  };
+
   # Cap all NVIDIA GPUs (e.g. dual RTX 3090) to a fixed power limit on boot.
   systemd.services.nvidia-power-limit = {
     description = "Set NVIDIA GPU power limit";
