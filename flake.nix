@@ -1,5 +1,5 @@
 {
-  description = "NixOS images (Raspberry Pi + ML workstation installer)";
+  description = "NixOS images + host configs (Raspberry Pi + ML workstation)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -37,6 +37,14 @@
         ];
       };
 
+      mlConfig = mkHost {
+        system = "x86_64-linux";
+        hostname = "ml3090";
+        modules = [
+          ./hosts/ml/configuration.nix
+        ];
+      };
+
       mlInstallerConfig = mkHost {
         system = "x86_64-linux";
         hostname = "ml3090";
@@ -49,6 +57,7 @@
     {
       nixosConfigurations = {
         rpi = rpiConfig;
+        ml3090 = mlConfig;
         ml3090Installer = mlInstallerConfig;
       };
 

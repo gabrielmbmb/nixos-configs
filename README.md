@@ -1,9 +1,10 @@
-# NixOS images (Raspberry Pi + ML workstation)
+# NixOS images + host configs (Raspberry Pi + ML workstation)
 
-This flake builds:
+This flake provides:
 
 1. **Raspberry Pi SD image** (`aarch64`)
 2. **x86_64 installer ISO** for an ML workstation with NVIDIA + CUDA 13.0
+3. **x86_64 installed system config** (`nixosConfigurations.ml3090`)
 
 ## Included setup
 
@@ -80,7 +81,27 @@ Result:
 
 The script downloads the latest successful GitHub Actions artifact (`ml-installer-iso`) and writes it to your USB drive.
 
-## 4) ML post-install checks
+## 4) Apply ML config after installation
+
+Booting from the installer ISO does **not** automatically apply the final host config.
+
+After installing NixOS on the ML machine:
+
+1. Copy generated hardware config into this repo:
+
+```bash
+sudo cp /etc/nixos/hardware-configuration.nix hosts/ml/hardware-configuration.nix
+```
+
+2. Commit/push `hosts/ml/hardware-configuration.nix`.
+
+3. On the ML machine, apply the flake host config:
+
+```bash
+sudo nixos-rebuild switch --flake .#ml3090
+```
+
+## 5) ML post-install checks
 
 On the installed ML machine, run:
 
@@ -96,7 +117,7 @@ This validates:
 - Docker daemon access
 - GPU access from Docker (`docker run --gpus all ... nvidia-smi`)
 
-## 5) GitHub Actions build artifacts
+## 6) GitHub Actions build artifacts
 
 Workflows:
 
