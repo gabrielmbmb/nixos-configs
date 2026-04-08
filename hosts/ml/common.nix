@@ -1,6 +1,7 @@
 { config, lib, pkgs, hostname, username, sshPublicKey, dotfiles, ... }:
 let
   cudaPkgs = pkgs.cudaPackages_13_0;
+  ffmpegPkg = pkgs.ffmpeg;
   gpuPowerLimitWatts = 300;
   nvidiaSmi = "${config.hardware.nvidia.package.bin}/bin/nvidia-smi";
 in
@@ -149,7 +150,7 @@ in
     gh
     curl
     wget
-    ffmpeg
+    ffmpegPkg
     unzip
     htop
     ruby
@@ -169,6 +170,7 @@ in
     LD_LIBRARY_PATH = lib.concatStringsSep ":" [
       "/run/opengl-driver/lib"
       "${config.hardware.nvidia.package}/lib"
+      "${lib.getLib ffmpegPkg}/lib"
     ];
     # CA bundle for TLS/SSL in tooling (curl/git/python/node/non-Nix binaries).
     SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
