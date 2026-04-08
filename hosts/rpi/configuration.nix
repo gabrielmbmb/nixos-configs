@@ -87,7 +87,7 @@ in
     nodejs
     rustc
     cargo
-    clang
+    cmake
     zig
     go
     bun
