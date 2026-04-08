@@ -35,6 +35,7 @@ in
   };
 
   programs.zsh.enable = true;
+  programs.nix-ld.enable = true;
   programs.starship.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
