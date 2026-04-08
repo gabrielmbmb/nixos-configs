@@ -170,6 +170,9 @@ in
     LD_LIBRARY_PATH = lib.concatStringsSep ":" [
       "/run/opengl-driver/lib"
       "${config.hardware.nvidia.package}/lib"
+      "${cudaPkgs.cudatoolkit}/lib"
+      "${cudaPkgs.cudatoolkit}/targets/x86_64-linux/lib"
+      "${lib.getLib cudaPkgs.libnpp}/lib"
       "${lib.getLib ffmpegPkg}/lib"
     ];
     # CA bundle for TLS/SSL in tooling (curl/git/python/node/non-Nix binaries).
