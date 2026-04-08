@@ -163,6 +163,11 @@ in
   environment.variables = {
     CUDA_HOME = "${cudaPkgs.cudatoolkit}";
     CUDA_PATH = "${cudaPkgs.cudatoolkit}";
+    # Ensure libcuda.so.1 is discoverable by tools that rely on LD_LIBRARY_PATH.
+    LD_LIBRARY_PATH = lib.concatStringsSep ":" [
+      "/run/opengl-driver/lib"
+      "${config.hardware.nvidia.package}/lib"
+    ];
   };
 
   nix.settings = {
