@@ -1,4 +1,30 @@
 { lib, pkgs, hostname, username, sshPublicKey, dotfiles, ... }:
+let
+  wakeUntilSsh = pkgs.writeShellScriptBin "wake-until-ssh"
+    (builtins.readFile ../../scripts/wake-until-ssh.sh);
+
+  wakeMl3090 = pkgs.writeShellScriptBin "wake-ml3090" ''
+    set -euo pipefail
+
+    if [[ $# -lt 1 ]]; then
+      echo "Usage: wake-ml3090 <mac-address> [port] [interval-seconds] [max-wait-seconds]" >&2
+      exit 1
+    fi
+
+    MAC="$1"
+    PORT="''${2:-22}"
+    INTERVAL="''${3:-5}"
+    MAX_WAIT="''${4:-300}"
+
+    exec ${wakeUntilSsh}/bin/wake-until-ssh \
+      "$MAC" \
+      "ml3090.local" \
+      "$PORT" \
+      "$INTERVAL" \
+      "$MAX_WAIT" \
+      "${username}@ml3090.local"
+  '';
+in
 {
   networking.hostName = hostname;
   networking.useDHCP = lib.mkDefault true;
@@ -92,6 +118,9 @@
     curl
     htop
     wakeonlan
+    openssh
+    wakeUntilSsh
+    wakeMl3090
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
