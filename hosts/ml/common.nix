@@ -147,7 +147,13 @@ in
     git
     gh
     curl
+    wget
+    unzip
     htop
+    ruby
+    colorls
+    python3
+    python3Packages.pip
     pciutils
     cudaPkgs.cudatoolkit
     llama-cpp

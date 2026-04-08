@@ -94,7 +94,13 @@ in
     git
     gh
     curl
+    wget
+    unzip
     htop
+    ruby
+    colorls
+    python3
+    python3Packages.pip
     wakeonlan
     openssh
     wakeUntilSsh
