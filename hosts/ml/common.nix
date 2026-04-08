@@ -140,6 +140,7 @@ in
     nodejs
     rustc
     cargo
+    clang
     zig
     go
     bun
