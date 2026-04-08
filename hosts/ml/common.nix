@@ -153,6 +153,7 @@ in
     htop
     ruby
     colorls
+    cacert
     python3
     python3Packages.pip
     pciutils
@@ -168,6 +169,9 @@ in
       "/run/opengl-driver/lib"
       "${config.hardware.nvidia.package}/lib"
     ];
+    # CA bundle for TLS/SSL in tooling (curl/git/python/node/non-Nix binaries).
+    SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+    NIX_SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
   };
 
   nix.settings = {
