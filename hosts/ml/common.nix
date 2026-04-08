@@ -149,6 +149,7 @@ in
     gh
     curl
     wget
+    ffmpeg
     unzip
     htop
     ruby
