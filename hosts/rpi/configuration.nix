@@ -81,6 +81,7 @@ in
     ripgrep
     fd
     fzf
+    bat
     starship
     uv
     pnpm

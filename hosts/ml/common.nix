@@ -136,6 +136,7 @@ in
     ripgrep
     fd
     fzf
+    bat
     starship
     pnpm
     nodejs
